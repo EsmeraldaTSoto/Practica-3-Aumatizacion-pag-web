@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Attack on Titan — Shingeki no Kyojin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;900&family=IM+Fell+English:ital@0;1&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blood:#8B0000;--ember:#C0392B;--inferno:#E74C3C;
+  --gold:#C9A84C;--pale-gold:#E8D5A0;
+  --ash:#0D0A09;--coal:#181210;--smoke:#251A18;
+  --bone:#EDE0C8;--fog:rgba(237,224,200,0.55);
+  --survey:#1A6B3C;--survey-bright:#2ECC71;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ash);color:var(--bone);
+  font-family:'IM Fell English',serif;
+  overflow-x:hidden;cursor:none;
+}
+
+/* ═══ CUSTOM CURSOR ═══ */
+#cursor{
+  position:fixed;width:12px;height:12px;
+  background:var(--blood);border-radius:50%;
+  pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);
+  transition:width .2s,height .2s,background .2s;
+  mix-blend-mode:difference;
+}
+#cursor-ring{
+  position:fixed;width:36px;height:36px;
+  border:1px solid rgba(201,168,76,.5);border-radius:50%;
+  pointer-events:none;z-index:99998;
+  transform:translate(-50%,-50%);
+  transition:all .12s ease;
+}
+body:has(a:hover) #cursor,body:has(button:hover) #cursor{width:20px;height:20px;background:var(--gold)}
+body:has(a:hover) #cursor-ring,body:has(button:hover) #cursor-ring{width:50px;height:50px;border-color:var(--gold)}
+
+/* ═══ NOISE ═══ */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9990;opacity:.4;
+}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  padding:1.2rem 4rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(to bottom,rgba(13,10,9,.95),transparent);
+  border-bottom:1px solid rgba(201,168,76,.08);
+  backdrop-filter:blur(8px);
+}
+.nav-logo{
+  font-family:'Cinzel Decorative',serif;font-size:1.1rem;
+  color:var(--blood);text-shadow:0 0 20px rgba(139,0,0,.7);
+  letter-spacing:.05em;
+}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{
+  font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.35em;
+  text-transform:uppercase;color:rgba(237,224,200,.45);
+  text-decoration:none;transition:color .25s;
+}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{
+  font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;
+  padding:.55rem 1.5rem;background:var(--blood);color:var(--bone);border:none;
+  cursor:none;transition:all .3s;
+  clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+}
+.nav-cta:hover{background:var(--ember);box-shadow:0 0 30px rgba(139,0,0,.6)}
+@media(max-width:700px){
+  nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+}
+
+/* ═══ HERO ═══ */
+.hero{
+  position:relative;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 30%,#2a0c08 0%,transparent 65%),
+    radial-gradient(ellipse 100% 60% at 50% 100%,#150404 0%,var(--ash) 55%),
+    conic-gradient(from 200deg at 50% 105%,#060101 0%,#1e0805 20%,#060101 40%,#120403 70%,#060101 100%);
+}
+
+/* Animated sky lines */
+.hero-lines{position:absolute;inset:0;overflow:hidden}
+.h-line{
+  position:absolute;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,.06),transparent);
+  animation:lineMove linear infinite;
+}
+@keyframes lineMove{
+  from{transform:translateY(100vh)}
+  to{transform:translateY(-10px)}
+}
+
+/* Wall stones */
+.wall-svg{
+  position:absolute;bottom:0;left:0;right:0;
+  height:50%;pointer-events:none;
+}
+
+/* Titan */
+.titan-wrap{
+  position:absolute;bottom:0;left:50%;
+  transform:translateX(-50%);
+  width:min(800px,95vw);
+  pointer-events:none;
+  animation:titanRise 2.8s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes titanRise{
+  from{opacity:0;transform:translateX(-50%) translateY(120px) scale(.96)}
+  to  {opacity:1;transform:translateX(-50%) translateY(0)   scale(1)}
+}
+.titan-glow{
+  position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
+  width:70%;height:100px;
+  background:radial-gradient(ellipse,rgba(139,0,0,.45),transparent 70%);
+  filter:blur(30px);
+}
+
+/* Blood drip top */
+.blood-drip{
+  position:absolute;top:0;left:0;right:0;height:6px;
+  background:linear-gradient(90deg,transparent,var(--blood),var(--ember),var(--blood),transparent);
+  box-shadow:0 0 30px var(--blood);
+}
+
+/* Embers */
+.embers{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.ember{
+  position:absolute;border-radius:50%;
+  animation:floatUp linear infinite;opacity:0;
+}
+@keyframes floatUp{
+  0%  {transform:translateY(100vh) translateX(0) rotate(0deg);opacity:0}
+  8%  {opacity:.9}
+  85% {opacity:.5}
+  100%{transform:translateY(-5vh) translateX(var(--dx)) rotate(720deg);opacity:0}
+}
+
+/* Hero content */
+.hero-content{
+  position:relative;z-index:10;text-align:center;
+  padding:2rem 1rem;
+  animation:heroIn 1.8s .5s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes heroIn{
+  from{opacity:0;transform:translateY(50px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+
+.eyebrow{
+  font-family:'Cinzel',serif;font-size:clamp(.6rem,1.4vw,.8rem);
+  letter-spacing:.55em;color:var(--gold);text-transform:uppercase;
+  margin-bottom:1.8rem;opacity:.8;
+}
+.hero-title{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(3rem,11vw,10rem);
+  font-weight:900;line-height:.88;
+  color:var(--bone);letter-spacing:-.02em;
+  text-shadow:0 0 100px rgba(139,0,0,.55),0 4px 0 rgba(0,0,0,.9);
+}
+.hero-title .red{
+  display:block;color:var(--blood);
+  text-shadow:0 0 50px rgba(139,0,0,1),0 0 150px rgba(139,0,0,.4),0 4px 0 #000;
+}
+.hero-jp{
+  font-family:'Cinzel',serif;font-size:clamp(.7rem,2vw,1.1rem);
+  letter-spacing:.6em;color:var(--bone);opacity:.35;
+  margin-top:.8rem;text-transform:uppercase;
+}
+.gold-divider{
+  width:160px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:2.2rem auto;
+}
+.hero-quote{
+  font-size:clamp(.95rem,2vw,1.25rem);
+  max-width:580px;margin:0 auto 3rem;
+  line-height:1.8;color:var(--bone);opacity:.7;font-style:italic;
+}
+.cta-wrap{display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap}
+.btn{
+  font-family:'Cinzel',serif;font-size:.68rem;
+  letter-spacing:.28em;text-transform:uppercase;
+  padding:.9rem 2.6rem;border:none;cursor:none;
+  transition:all .35s;text-decoration:none;display:inline-block;
+}
+.btn-primary{
+  background:var(--blood);color:var(--bone);
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+  box-shadow:0 0 40px rgba(139,0,0,.45),inset 0 1px 0 rgba(255,255,255,.07);
+}
+.btn-primary:hover{background:var(--ember);box-shadow:0 0 60px rgba(192,57,43,.9);transform:translateY(-3px)}
+.btn-outline{
+  background:transparent;color:var(--gold);
+  border:1px solid rgba(201,168,76,.35);
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+}
+.btn-outline:hover{background:rgba(201,168,76,.07);border-color:var(--gold);transform:translateY(-3px)}
+
+.scroll-arrow{
+  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  z-index:10;display:flex;flex-direction:column;align-items:center;gap:.4rem;
+  opacity:.35;
+}
+.scroll-arrow span{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.4em;text-transform:uppercase}
+.arr{
+  width:1px;height:60px;
+  background:linear-gradient(to bottom,var(--gold),transparent);
+  animation:arrDrop 2s ease-in-out infinite;
+}
+@keyframes arrDrop{
+  0%  {transform:scaleY(0);transform-origin:top;opacity:0}
+  40% {transform:scaleY(1);transform-origin:top;opacity:1}
+  41% {transform:scaleY(1);transform-origin:bottom}
+  80% {transform:scaleY(0);transform-origin:bottom;opacity:0}
+  100%{opacity:0}
+}
+
+/* ═══ REVEAL ═══ */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .9s ease,transform .9s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity .9s ease,transform .9s cubic-bezier(.16,1,.3,1)}
+.reveal-left.in{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(40px);transition:opacity .9s ease,transform .9s cubic-bezier(.16,1,.3,1)}
+.reveal-right.in{opacity:1;transform:translateX(0)}
+
+/* ═══ SECTION COMMONS ═══ */
+.section-pill{
+  font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.55em;
+  text-transform:uppercase;color:var(--gold);
+  display:inline-block;padding:.3rem 1.2rem;
+  border:1px solid rgba(201,168,76,.25);
+  margin-bottom:1.4rem;
+}
+.section-h{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(1.8rem,4vw,3.5rem);
+  color:var(--bone);line-height:1.15;
+  text-shadow:0 0 60px rgba(139,0,0,.2);
+}
+.section-h em{color:var(--blood);font-style:normal}
+
+/* ═══ LORE STRIP ═══ */
+.lore-strip{
+  padding:3.5rem 2rem;
+  background:linear-gradient(90deg,rgba(139,0,0,.18),rgba(192,57,43,.08),rgba(139,0,0,.18));
+  border-top:1px solid rgba(139,0,0,.3);
+  border-bottom:1px solid rgba(139,0,0,.3);
+  overflow:hidden;position:relative;
+}
+.lore-ticker{
+  display:flex;gap:5rem;white-space:nowrap;
+  animation:ticker 28s linear infinite;
+}
+.lore-ticker span{
+  font-family:'Bebas Neue',sans-serif;font-size:1.4rem;
+  letter-spacing:.2em;color:rgba(201,168,76,.6);
+  flex-shrink:0;
+}
+.lore-ticker span.sep{color:rgba(139,0,0,.8)}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ═══ STORY TIMELINE ═══ */
+.timeline-sec{
+  padding:10rem 2rem;
+  background:linear-gradient(to bottom,var(--ash),#0a0606,var(--coal));
+  position:relative;overflow:hidden;
+}
+.timeline-bg-text{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(8rem,20vw,22rem);
+  color:rgba(139,0,0,.04);white-space:nowrap;pointer-events:none;
+  letter-spacing:-.02em;
+}
+.timeline{
+  max-width:900px;margin:5rem auto 0;
+  position:relative;
+}
+.timeline::before{
+  content:'';position:absolute;left:50%;top:0;bottom:0;
+  width:1px;background:linear-gradient(to bottom,transparent,rgba(201,168,76,.3),transparent);
+  transform:translateX(-50%);
+}
+.t-item{
+  display:flex;gap:3rem;align-items:flex-start;
+  margin-bottom:5rem;position:relative;
+}
+.t-item:nth-child(even){flex-direction:row-reverse}
+.t-item:nth-child(even) .t-body{text-align:right}
+.t-dot{
+  position:absolute;left:50%;top:1rem;transform:translateX(-50%);
+  width:14px;height:14px;border-radius:50%;
+  background:var(--blood);flex-shrink:0;z-index:2;
+  box-shadow:0 0 20px rgba(139,0,0,.8);
+}
+.t-body{flex:1}
+.t-year{
+  font-family:'Bebas Neue',sans-serif;font-size:3.5rem;
+  color:rgba(139,0,0,.25);line-height:1;margin-bottom:.4rem;
+}
+.t-title{
+  font-family:'Cinzel',serif;font-size:.85rem;font-weight:600;
+  color:var(--gold);letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:.6rem;
+}
+.t-desc{font-size:.92rem;line-height:1.7;color:var(--fog)}
+@media(max-width:640px){
+  .timeline::before{left:24px}
+  .t-item,.t-item:nth-child(even){flex-direction:column}
+  .t-item:nth-child(even) .t-body{text-align:left}
+  .t-dot{left:24px}
+}
+
+/* ═══ THREE WALLS ═══ */
+.walls-sec{
+  padding:8rem 2rem;
+  background:radial-gradient(ellipse 80% 60% at 50% 50%,#120606,var(--ash));
+  text-align:center;
+}
+.walls-grid{
+  display:flex;justify-content:center;align-items:flex-end;
+  gap:0;max-width:700px;margin:5rem auto 0;
+  position:relative;
+}
+.wall-card{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  transition:transform .4s;cursor:none;
+}
+.wall-card:hover{transform:translateY(-12px)}
+.wall-block{
+  width:100%;position:relative;
+  background:linear-gradient(to bottom,#2a1a0a,#1a0d06);
+  border:1px solid rgba(201,168,76,.15);
+  border-bottom:none;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:1.5rem 1rem 1rem;text-align:center;overflow:hidden;
+}
+.wall-block::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    0deg,rgba(0,0,0,.1) 0px,rgba(0,0,0,.1) 20px,
+    rgba(255,255,255,.02) 20px,rgba(255,255,255,.02) 21px
+  );
+}
+.wall-block::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--blood);
+}
+.wall-name{
+  font-family:'Cinzel Decorative',serif;font-size:.85rem;
+  color:var(--gold);position:relative;z-index:1;letter-spacing:.1em;
+}
+.wall-card:nth-child(1) .wall-block{height:180px}
+.wall-card:nth-child(2) .wall-block{height:240px}
+.wall-card:nth-child(3) .wall-block{height:300px}
+.wall-label{
+  font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.35em;
+  text-transform:uppercase;color:var(--fog);margin-top:.8rem;
+  opacity:.6;
+}
+.wall-card:hover .wall-block{box-shadow:0 -20px 60px rgba(139,0,0,.25)}
+
+/* ═══ SEASONS ═══ */
+.seasons-sec{
+  padding:8rem 2rem;
+  background:linear-gradient(to bottom,var(--coal),var(--ash));
+}
+.seasons-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:1.5rem;max-width:1200px;margin:5rem auto 0;
+}
+.s-card{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#1c1008,#160a0a);
+  border:1px solid rgba(201,168,76,.1);
+  padding:2.8rem 2.2rem;cursor:none;
+  transition:all .4s cubic-bezier(.16,1,.3,1);
+  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px));
+}
+.s-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(139,0,0,.12),transparent);
+  opacity:0;transition:opacity .4s;
+}
+.s-card-glow{
+  position:absolute;top:-50%;left:-50%;
+  width:200%;height:200%;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(139,0,0,.12),transparent 60%);
+  opacity:0;transition:opacity .4s;pointer-events:none;
+}
+.s-card:hover{transform:translateY(-8px);border-color:rgba(201,168,76,.3);box-shadow:0 30px 70px rgba(0,0,0,.6),0 0 40px rgba(139,0,0,.15)}
+.s-card:hover::before,.s-card:hover .s-card-glow{opacity:1}
+.s-num{
+  font-family:'Cinzel Decorative',serif;font-size:4rem;
+  color:rgba(139,0,0,.18);line-height:1;margin-bottom:1.2rem;font-weight:900;
+}
+.s-badge{
+  display:inline-block;font-family:'Cinzel',serif;font-size:.55rem;
+  letter-spacing:.3em;text-transform:uppercase;padding:.25rem .8rem;
+  border:1px solid rgba(139,0,0,.4);color:var(--blood);margin-bottom:.8rem;
+}
+.s-title{
+  font-family:'Cinzel',serif;font-size:1rem;font-weight:600;
+  color:var(--gold);letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:.8rem;
+}
+.s-text{font-size:.9rem;line-height:1.75;color:rgba(237,224,200,.6)}
+.s-ep{
+  margin-top:1.5rem;font-family:'Cinzel',serif;font-size:.6rem;
+  letter-spacing:.3em;text-transform:uppercase;color:rgba(237,224,200,.3);
+}
+
+/* ═══ MANIFESTO ═══ */
+.manifesto-sec{
+  padding:11rem 2rem;position:relative;overflow:hidden;
+  background:#070303;
+}
+.manifesto-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 65% 55% at 25% 50%,rgba(139,0,0,.13),transparent 70%),
+    radial-gradient(ellipse 65% 55% at 75% 50%,rgba(201,168,76,.05),transparent 70%);
+}
+.manifesto-vlines{position:absolute;inset:0;pointer-events:none}
+.manifesto-vlines::before,.manifesto-vlines::after{
+  content:'';position:absolute;top:0;bottom:0;width:1px;
+  background:linear-gradient(to bottom,transparent,rgba(201,168,76,.15),transparent);
+}
+.manifesto-vlines::before{left:12%}
+.manifesto-vlines::after{right:12%}
+.manifesto-inner{
+  position:relative;max-width:960px;margin:0 auto;text-align:center;
+}
+.manifesto-big{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(1.8rem,5vw,4.2rem);
+  line-height:1.2;color:var(--bone);margin-bottom:2.5rem;
+}
+.manifesto-big em{
+  color:var(--blood);font-style:normal;
+  text-shadow:0 0 60px rgba(139,0,0,.9);
+}
+.manifesto-attr{
+  font-family:'IM Fell English',serif;font-style:italic;
+  color:var(--gold);font-size:1.1rem;opacity:.7;
+}
+
+/* ═══ CHARACTERS ═══ */
+.chars-sec{
+  padding:8rem 2rem;
+  background:linear-gradient(to bottom,var(--ash),#0c0505);
+}
+.chars-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:2rem;max-width:1100px;margin:5rem auto 0;
+}
+.ch-card{
+  position:relative;text-align:center;
+  padding:2.5rem 1.8rem;cursor:none;
+  border:1px solid rgba(201,168,76,.08);
+  background:rgba(255,255,255,.015);
+  overflow:hidden;transition:all .35s;
+}
+.ch-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(139,0,0,.2),transparent 70%);
+  opacity:0;transition:opacity .4s;
+}
+.ch-card:hover{border-color:rgba(139,0,0,.4);transform:translateY(-6px);box-shadow:0 16px 50px rgba(0,0,0,.5)}
+.ch-card:hover::before{opacity:1}
+.ch-icon{
+  width:88px;height:88px;border-radius:50%;
+  margin:0 auto 1.4rem;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;
+  border:2px solid rgba(201,168,76,.2);
+  background:linear-gradient(135deg,#1a0505,#2a0a0a);
+  box-shadow:0 0 30px rgba(139,0,0,.15);
+  position:relative;
+}
+.ch-icon::after{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid rgba(201,168,76,.08);
+}
+.ch-name{
+  font-family:'Cinzel',serif;font-size:.9rem;font-weight:600;
+  color:var(--gold);letter-spacing:.1em;margin-bottom:.3rem;
+}
+.ch-rank{
+  font-size:.72rem;color:rgba(237,224,200,.35);
+  font-style:italic;margin-bottom:.5rem;
+  font-family:'Cinzel',serif;letter-spacing:.08em;
+}
+.ch-power{
+  display:flex;gap:.3rem;justify-content:center;margin-bottom:1rem;
+}
+.star{color:var(--blood);font-size:.7rem}
+.ch-desc{font-size:.82rem;line-height:1.7;color:rgba(237,224,200,.52)}
+.ch-tag{
+  display:inline-block;margin-top:1rem;font-family:'Cinzel',serif;
+  font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;
+  padding:.2rem .7rem;border:1px solid rgba(139,0,0,.35);color:rgba(192,57,43,.8);
+}
+
+/* ═══ TITANS POWER SELECTOR ═══ */
+.titans-sec{
+  padding:8rem 2rem;
+  background:radial-gradient(ellipse 100% 70% at 50% 50%,#150505,var(--ash));
+}
+.titans-wrap{
+  max-width:1000px;margin:5rem auto 0;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:3rem;align-items:start;
+}
+.titan-list{display:flex;flex-direction:column;gap:.8rem}
+.titan-btn{
+  background:transparent;border:1px solid rgba(201,168,76,.1);
+  padding:1.2rem 1.5rem;cursor:none;text-align:left;
+  transition:all .3s;display:flex;align-items:center;gap:1rem;
+  clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+}
+.titan-btn:hover,.titan-btn.active{
+  background:rgba(139,0,0,.12);border-color:rgba(139,0,0,.5);
+}
+.titan-btn.active{background:rgba(139,0,0,.18)}
+.tb-icon{font-size:1.6rem;flex-shrink:0;width:40px;text-align:center}
+.tb-info{}
+.tb-name{
+  font-family:'Cinzel',serif;font-size:.8rem;font-weight:600;
+  color:var(--gold);letter-spacing:.1em;text-transform:uppercase;
+}
+.tb-holder{font-size:.72rem;color:rgba(237,224,200,.4);margin-top:.2rem;font-style:italic}
+.titan-detail{
+  position:sticky;top:7rem;
+  border:1px solid rgba(201,168,76,.12);
+  background:linear-gradient(135deg,#1c1008,#130808);
+  padding:2.5rem;
+  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
+  min-height:340px;transition:all .4s;
+}
+.td-icon{font-size:4rem;margin-bottom:1rem}
+.td-name{
+  font-family:'Cinzel Decorative',serif;font-size:1.6rem;
+  color:var(--bone);margin-bottom:.3rem;
+}
+.td-holder{
+  font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:1.2rem;
+}
+.td-desc{font-size:.9rem;line-height:1.8;color:var(--fog);margin-bottom:1.5rem}
+.td-bars{display:flex;flex-direction:column;gap:.6rem}
+.td-bar-label{
+  display:flex;justify-content:space-between;
+  font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.25em;
+  text-transform:uppercase;color:rgba(237,224,200,.4);margin-bottom:.25rem;
+}
+.td-bar-track{height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.td-bar-fill{
+  height:100%;background:linear-gradient(90deg,var(--blood),var(--ember));
+  border-radius:2px;width:0;transition:width 1s cubic-bezier(.16,1,.3,1);
+}
+@media(max-width:700px){.titans-wrap{grid-template-columns:1fr}}
+
+/* ═══ ODM GEAR ═══ */
+.odm-sec{
+  padding:9rem 2rem;
+  background:linear-gradient(to bottom,#0a0606,var(--coal));
+  position:relative;overflow:hidden;
+}
+.odm-inner{
+  max-width:1000px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;
+}
+.odm-visual{
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.odm-ring{
+  width:280px;height:280px;border-radius:50%;
+  border:1px solid rgba(201,168,76,.2);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;animation:spinRing 20s linear infinite;
+}
+.odm-ring::before,.odm-ring::after{
+  content:'';position:absolute;border-radius:50%;
+  border:1px solid rgba(139,0,0,.2);
+}
+.odm-ring::before{inset:15px}
+.odm-ring::after{inset:30px}
+@keyframes spinRing{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.odm-center{
+  position:absolute;text-align:center;animation:spinRing 20s linear infinite reverse;
+}
+.odm-center-icon{font-size:3.5rem;display:block}
+.odm-center-text{
+  font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.4em;
+  text-transform:uppercase;color:var(--gold);opacity:.7;margin-top:.3rem;
+}
+.odm-text-block h3{
+  font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,3vw,2.4rem);
+  color:var(--bone);margin-bottom:1.2rem;
+}
+.odm-text-block p{font-size:.9rem;line-height:1.8;color:var(--fog);margin-bottom:1rem}
+.odm-specs{
+  margin-top:2rem;display:grid;grid-template-columns:1fr 1fr;gap:.8rem;
+}
+.odm-spec{
+  padding:.8rem 1rem;border:1px solid rgba(201,168,76,.1);
+  background:rgba(255,255,255,.02);
+}
+.odm-spec-name{
+  font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--gold);opacity:.6;margin-bottom:.2rem;
+}
+.odm-spec-val{font-size:.85rem;color:var(--bone)}
+@media(max-width:700px){.odm-inner{grid-template-columns:1fr}}
+
+/* ═══ SURVEY CORPS ═══ */
+.survey-sec{
+  padding:8rem 2rem;
+  background:linear-gradient(135deg,#060d07,#0a0606);
+  position:relative;overflow:hidden;
+}
+.survey-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 50% 60% at 20% 50%,rgba(30,107,60,.1),transparent 70%);
+}
+.survey-inner{
+  max-width:1000px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;
+}
+.survey-emblem{
+  display:flex;flex-direction:column;align-items:center;gap:1rem;
+}
+.wings-svg{
+  width:260px;height:auto;
+  filter:drop-shadow(0 0 30px rgba(30,107,60,.4));
+  animation:wingsFloat 4s ease-in-out infinite;
+}
+@keyframes wingsFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-12px)}
+}
+.survey-motto{
+  font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.35em;
+  text-transform:uppercase;color:rgba(46,204,113,.5);text-align:center;
+}
+.survey-text h3{
+  font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,3vw,2.2rem);
+  color:var(--bone);margin-bottom:1.2rem;
+}
+.survey-text p{font-size:.9rem;line-height:1.8;color:var(--fog);margin-bottom:.9rem}
+.corps-badge{
+  display:inline-block;margin-top:.8rem;
+  font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;
+  padding:.35rem 1rem;border:1px solid rgba(46,204,113,.25);color:rgba(46,204,113,.7);
+}
+@media(max-width:700px){.survey-inner{grid-template-columns:1fr}}
+
+/* ═══ QUOTES CAROUSEL ═══ */
+.quotes-sec{
+  padding:7rem 2rem;background:var(--ash);
+  position:relative;overflow:hidden;
+}
+.quotes-track{
+  max-width:800px;margin:4rem auto 0;
+  position:relative;min-height:200px;
+}
+.quote-slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  opacity:0;transform:translateY(20px);
+  transition:opacity .6s ease,transform .6s ease;
+  pointer-events:none;
+}
+.quote-slide.active{opacity:1;transform:translateY(0);pointer-events:all}
+.q-text{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(1.1rem,3vw,2rem);
+  line-height:1.4;color:var(--bone);margin-bottom:1.5rem;
+}
+.q-attr{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:.95rem;color:var(--gold);opacity:.7;
+}
+.q-dots{
+  display:flex;gap:.7rem;justify-content:center;margin-top:3rem;
+}
+.q-dot{
+  width:6px;height:6px;border-radius:50%;background:rgba(201,168,76,.25);
+  cursor:none;transition:all .3s;
+}
+.q-dot.active{background:var(--blood);box-shadow:0 0 10px rgba(139,0,0,.7)}
+
+/* ═══ STATS ═══ */
+.stats-sec{
+  padding:7rem 2rem;
+  background:radial-gradient(ellipse 80% 60% at 50% 50%,#100505,var(--ash));
+}
+.stats-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:3rem;max-width:1000px;margin:4rem auto 0;text-align:center;
+}
+.stat-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(3rem,7vw,5.5rem);
+  color:var(--blood);text-shadow:0 0 40px rgba(139,0,0,.6);
+  line-height:1;display:block;
+}
+.stat-lab{
+  font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.45em;
+  text-transform:uppercase;color:var(--bone);opacity:.38;margin-top:.5rem;display:block;
+}
+.stat-bar{
+  height:2px;width:60px;margin:1rem auto 0;
+  background:linear-gradient(90deg,transparent,var(--blood),transparent);
+}
+
+/* ═══ SOUNDTRACK ═══ */
+.sound-sec{
+  padding:8rem 2rem;
+  background:linear-gradient(to bottom,#0a0606,var(--coal));
+}
+.tracks{
+  max-width:700px;margin:4rem auto 0;
+  display:flex;flex-direction:column;gap:.8rem;
+}
+.track{
+  display:flex;align-items:center;gap:1.5rem;
+  padding:1.1rem 1.5rem;
+  border:1px solid rgba(201,168,76,.08);
+  background:rgba(255,255,255,.015);
+  cursor:none;transition:all .3s;position:relative;overflow:hidden;
+}
+.track::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:0;background:rgba(139,0,0,.1);transition:width .4s;
+}
+.track:hover::before,.track.playing::before{width:100%}
+.track:hover,.track.playing{border-color:rgba(139,0,0,.35)}
+.track-num{
+  font-family:'Bebas Neue',sans-serif;font-size:1.2rem;
+  color:rgba(201,168,76,.3);width:24px;flex-shrink:0;position:relative;
+}
+.track-play{
+  display:none;font-size:.8rem;color:var(--blood);position:relative;
+}
+.track:hover .track-num,.track.playing .track-num{display:none}
+.track:hover .track-play,.track.playing .track-play{display:block}
+.track-info{flex:1;position:relative}
+.track-title{
+  font-family:'Cinzel',serif;font-size:.82rem;font-weight:600;
+  color:var(--bone);letter-spacing:.05em;
+}
+.track-comp{font-size:.72rem;color:rgba(237,224,200,.38);margin-top:.1rem;font-style:italic}
+.track-dur{
+  font-family:'Bebas Neue',sans-serif;font-size:1rem;
+  color:rgba(237,224,200,.3);position:relative;flex-shrink:0;
+}
+.track-wave{
+  display:flex;align-items:center;gap:2px;height:16px;flex-shrink:0;
+  opacity:0;transition:opacity .3s;
+}
+.track.playing .track-wave{opacity:1}
+.wave-bar{
+  width:3px;background:var(--blood);border-radius:2px;
+  animation:wave .8s ease-in-out infinite alternate;
+}
+.wave-bar:nth-child(2){animation-delay:.1s}
+.wave-bar:nth-child(3){animation-delay:.2s}
+.wave-bar:nth-child(4){animation-delay:.3s}
+@keyframes wave{from{height:4px}to{height:14px}}
+
+/* ═══ GALLERY GRID ═══ */
+.gallery-sec{
+  padding:8rem 2rem;
+  background:var(--ash);
+}
+.gallery-grid{
+  max-width:1100px;margin:4rem auto 0;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-template-rows:repeat(3,140px);
+  gap:1rem;
+}
+.g-cell{
+  background:linear-gradient(135deg,var(--smoke),var(--coal));
+  border:1px solid rgba(201,168,76,.07);
+  overflow:hidden;position:relative;
+  cursor:none;transition:all .35s;
+  display:flex;align-items:center;justify-content:center;
+}
+.g-cell:nth-child(1){grid-column:span 2;grid-row:span 2}
+.g-cell:nth-child(4){grid-column:span 2}
+.g-cell:nth-child(6){grid-column:span 2;grid-row:span 1}
+.g-cell::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(139,0,0,.1),rgba(201,168,76,.05));
+  opacity:0;transition:opacity .4s;
+}
+.g-cell:hover::before{opacity:1}
+.g-cell:hover{border-color:rgba(139,0,0,.3);box-shadow:0 0 30px rgba(139,0,0,.15)}
+.g-inner{text-align:center;padding:1rem;z-index:1;position:relative}
+.g-emoji{font-size:clamp(2rem,4vw,3.5rem);display:block;margin-bottom:.5rem;opacity:.6}
+.g-label{
+  font-family:'Cinzel',serif;font-size:clamp(.5rem,.9vw,.7rem);
+  letter-spacing:.3em;text-transform:uppercase;color:rgba(201,168,76,.5);
+}
+@media(max-width:640px){
+  .gallery-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(5,120px)}
+  .g-cell:nth-child(1){grid-column:span 2;grid-row:span 1}
+  .g-cell:nth-child(4){grid-column:span 1}
+  .g-cell:nth-child(6){grid-column:span 2}
+}
+
+/* ═══ FOOTER ═══ */
+footer{
+  padding:5rem 2rem 3rem;
+  border-top:1px solid rgba(201,168,76,.08);
+  background:var(--coal);position:relative;overflow:hidden;
+}
+footer::before{
+  content:'ATTACK ON TITAN';
+  position:absolute;bottom:-1rem;left:50%;transform:translateX(-50%);
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,14vw,12rem);
+  color:rgba(139,0,0,.04);white-space:nowrap;pointer-events:none;
+  letter-spacing:.05em;
+}
+.footer-inner{position:relative;max-width:900px;margin:0 auto;text-align:center}
+.footer-logo{
+  font-family:'Cinzel Decorative',serif;font-size:1.6rem;
+  color:var(--blood);text-shadow:0 0 25px rgba(139,0,0,.6);margin-bottom:2rem;
+}
+.footer-nav{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem}
+.footer-nav a{
+  font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:.35em;
+  text-transform:uppercase;color:rgba(237,224,200,.3);text-decoration:none;transition:color .25s;
+}
+.footer-nav a:hover{color:var(--gold)}
+.footer-divider{
+  width:100%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,.15),transparent);
+  margin:2rem 0;
+}
+.footer-copy{font-size:.72rem;color:rgba(237,224,200,.18);font-style:italic}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">進撃 · AoT</div>
+  <ul class="nav-links">
+    <li><a href="#timeline">Historia</a></li>
+    <li><a href="#seasons">Temporadas</a></li>
+    <li><a href="#chars">Personajes</a></li>
+    <li><a href="#titans">Titanes</a></li>
+    <li><a href="#sound">Soundtrack</a></li>
+  </ul>
+  <button class="nav-cta">Ver Anime</button>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="blood-drip"></div>
+
+  <!-- Animated sky lines -->
+  <div class="hero-lines" id="heroLines"></div>
+
+  <!-- Wall -->
+  <svg class="wall-svg" viewBox="0 0 1400 500" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="brickP" width="90" height="46" patternUnits="userSpaceOnUse">
+        <rect width="90" height="46" fill="none" stroke="#6B4F1A" stroke-width="1.2" opacity=".22"/>
+        <line x1="0" y1="23" x2="45" y2="23" stroke="#6B4F1A" stroke-width=".7" opacity=".15"/>
+        <line x1="45" y1="0" x2="45" y2="23" stroke="#6B4F1A" stroke-width=".7" opacity=".12"/>
+      </pattern>
+    </defs>
+    <rect width="1400" height="500" fill="url(#brickP)"/>
+    <rect width="1400" height="6" y="494" fill="rgba(139,0,0,.35)"/>
+  </svg>
+
+  <!-- Titan SVG -->
+  <div class="titan-wrap">
+    <div class="titan-glow"></div>
+    <svg viewBox="0 0 800 700" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+      <defs>
+        <radialGradient id="tg1" cx="50%" cy="70%" r="50%">
+          <stop offset="0%" stop-color="#8B0000" stop-opacity=".3"/>
+          <stop offset="100%" stop-color="#8B0000" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <!-- Ground glow -->
+      <ellipse cx="400" cy="660" rx="300" ry="55" fill="url(#tg1)"/>
+      <!-- Legs -->
+      <path d="M 330 700 L 320 530 Q 315 510 330 500 L 370 495 Q 385 510 380 530 L 375 700 Z" fill="#0e0505" stroke="rgba(139,0,0,.25)" stroke-width="1"/>
+      <path d="M 470 700 L 460 530 Q 455 510 430 500 L 390 495 Q 375 510 378 530 L 425 700 Z" fill="#0e0505" stroke="rgba(139,0,0,.25)" stroke-width="1"/>
+      <!-- Body / torso -->
+      <path d="M 300 700 L 295 460 Q 260 420 250 370 Q 235 300 265 240 Q 285 190 320 165 L 300 140 Q 290 110 295 80 Q 302 48 340 32 Q 370 18 400 18 Q 432 18 460 32 Q 498 48 505 80 Q 510 110 500 140 L 480 165 Q 515 190 535 240 Q 565 300 550 370 Q 540 420 505 460 L 500 700 Z"
+            fill="#120505" stroke="rgba(139,0,0,.2)" stroke-width="1"/>
+      <!-- Exposed muscle texture on torso -->
+      <path d="M 340 300 Q 360 280 400 282 Q 440 280 460 300 Q 448 340 400 345 Q 352 340 340 300Z" fill="rgba(139,0,0,.07)" stroke="rgba(139,0,0,.15)" stroke-width=".8"/>
+      <path d="M 340 350 Q 360 335 400 337 Q 440 335 460 350 Q 448 390 400 393 Q 352 390 340 350Z" fill="rgba(139,0,0,.06)" stroke="rgba(139,0,0,.12)" stroke-width=".8"/>
+      <path d="M 345 400 Q 365 385 400 387 Q 435 385 455 400 Q 445 430 400 432 Q 355 430 345 400Z" fill="rgba(139,0,0,.05)" stroke="rgba(139,0,0,.1)" stroke-width=".8"/>
+      <!-- Arms -->
+      <path d="M 265 240 Q 205 265 175 300 Q 150 340 160 390 Q 175 430 210 435 Q 235 435 250 415 Q 255 390 248 360 Q 255 320 268 295 Z"
+            fill="#130505" stroke="rgba(139,0,0,.2)" stroke-width="1"/>
+      <path d="M 535 240 Q 595 265 625 300 Q 650 340 640 390 Q 625 430 590 435 Q 565 435 550 415 Q 545 390 552 360 Q 545 320 532 295 Z"
+            fill="#130505" stroke="rgba(139,0,0,.2)" stroke-width="1"/>
+      <!-- Hands (clawed) -->
+      <path d="M 155 390 L 148 415 L 160 418 L 155 440 L 166 435 L 164 450 L 174 445 L 173 455 L 182 445 L 185 458 L 192 444 L 197 435 L 210 435 Q 193 405 188 390 Z"
+            fill="#130505" stroke="rgba(139,0,0,.25)" stroke-width=".8"/>
+      <path d="M 645 390 L 652 415 L 640 418 L 645 440 L 634 435 L 636 450 L 626 445 L 627 455 L 618 445 L 615 458 L 608 444 L 603 435 L 590 435 Q 607 405 612 390 Z"
+            fill="#130505" stroke="rgba(139,0,0,.25)" stroke-width=".8"/>
+      <!-- Neck -->
+      <path d="M 355 165 L 360 200 L 400 202 L 440 200 L 445 165 Q 420 175 400 175 Q 380 175 355 165Z" fill="#120505" stroke="rgba(139,0,0,.15)" stroke-width="1"/>
+      <!-- Head -->
+      <ellipse cx="400" cy="115" rx="80" ry="88" fill="#120505" stroke="rgba(139,0,0,.25)" stroke-width="1.5"/>
+      <!-- Skull definition -->
+      <path d="M 335 90 Q 350 65 400 62 Q 450 65 465 90" fill="none" stroke="rgba(139,0,0,.12)" stroke-width="2"/>
+      <!-- Cheekbones (exposed) -->
+      <path d="M 330 115 Q 342 105 358 110 Q 350 125 338 128 Z" fill="rgba(139,0,0,.15)" stroke="rgba(139,0,0,.2)" stroke-width=".8"/>
+      <path d="M 470 115 Q 458 105 442 110 Q 450 125 462 128 Z" fill="rgba(139,0,0,.15)" stroke="rgba(139,0,0,.2)" stroke-width=".8"/>
+      <!-- Brow ridge -->
+      <path d="M 344 88 Q 370 78 400 78 Q 430 78 456 88 Q 440 100 400 100 Q 360 100 344 88Z" fill="rgba(0,0,0,.4)" stroke="rgba(139,0,0,.15)" stroke-width="1"/>
+      <!-- Eyes GLOWING -->
+      <ellipse cx="368" cy="102" rx="18" ry="13" fill="rgba(139,0,0,.85)" filter="url(#glow)"/>
+      <ellipse cx="432" cy="102" rx="18" ry="13" fill="rgba(139,0,0,.85)" filter="url(#glow)"/>
+      <ellipse cx="368" cy="102" rx="9"  ry="6"  fill="rgba(255,60,60,.95)"/>
+      <ellipse cx="432" cy="102" rx="9"  ry="6"  fill="rgba(255,60,60,.95)"/>
+      <ellipse cx="366" cy="100" rx="3"  ry="2"  fill="#fff" opacity=".6"/>
+      <ellipse cx="430" cy="100" rx="3"  ry="2"  fill="#fff" opacity=".6"/>
+      <!-- Steam -->
+      <circle cx="388" cy="40" r="10" fill="rgba(255,255,255,.025)"/>
+      <circle cx="408" cy="26" r="15" fill="rgba(255,255,255,.02)"/>
+      <circle cx="395" cy="10" r="20" fill="rgba(255,255,255,.015)"/>
+    </svg>
+  </div>
+
+  <!-- Embers -->
+  <div class="embers" id="embers"></div>
+
+  <div class="hero-content">
+    <p class="eyebrow">Hajime Isayama · 2009–2021 · Kodansha</p>
+    <h1 class="hero-title">
+      Attack<br>on<br><span class="red">Titan</span>
+    </h1>
+    <p class="hero-jp">進撃の巨人 — Shingeki no Kyojin</p>
+    <div class="gold-divider"></div>
+    <p class="hero-quote">
+      "Más allá de estas murallas yace la libertad.<br>
+      Más allá yace el destino de toda la humanidad."
+    </p>
+    <div class="cta-wrap">
+      <a href="#timeline" class="btn btn-primary">Explorar la historia</a>
+      <a href="#titans" class="btn btn-outline">Los Nueve Titanes</a>
+    </div>
+  </div>
+
+  <div class="scroll-arrow">
+    <span>Scroll</span>
+    <div class="arr"></div>
+  </div>
+</section>
+
+<!-- ═══ LORE STRIP ═══ -->
+<div class="lore-strip">
+  <div class="lore-ticker" id="ticker"></div>
+</div>
+
+<!-- ═══ TIMELINE ═══ -->
+<section class="timeline-sec" id="timeline">
+  <div class="timeline-bg-text">845 — 854</div>
+  <div style="text-align:center" class="reveal">
+    <span class="section-pill">Cronología</span>
+    <h2 class="section-h">Los años que <em>cambiaron</em><br>el mundo</h2>
+  </div>
+
+  <div class="timeline">
+    <div class="t-item reveal">
+      <div class="t-body">
+        <div class="t-year">845</div>
+        <div class="t-title">La Caída de la Muralla Maria</div>
+        <p class="t-desc">El Titán Colosal golpea la Muralla Maria. El Titán Acorazado la destroza. Miles mueren. Eren Yeager pierde a su madre y jura exterminar a todos los titanes.</p>
+      </div>
+      <div class="t-dot"></div>
+      <div style="flex:1"></div>
+    </div>
+
+    <div class="t-item reveal">
+      <div style="flex:1"></div>
+      <div class="t-dot"></div>
+      <div class="t-body">
+        <div class="t-year">847</div>
+        <div class="t-title">Ingreso al Cuerpo de Cadetes</div>
+        <p class="t-desc">Eren, Mikasa y Armin se alistan en el Regimiento de Entrenamiento. Tras cinco años, Eren gradúa en el quinto lugar. Mikasa es primera de su generación.</p>
+      </div>
+    </div>
+
+    <div class="t-item reveal">
+      <div class="t-body">
+        <div class="t-year">850</div>
+        <div class="t-title">Batalla de Trost</div>
+        <p class="t-desc">El Titán Colosal reaparece. Eren revela su poder para transformarse en titán y sella el agujero en la muralla. El mundo descubre que hay humanos dentro de los titanes.</p>
+      </div>
+      <div class="t-dot"></div>
+      <div style="flex:1"></div>
+    </div>
+
+    <div class="t-item reveal">
+      <div style="flex:1"></div>
+      <div class="t-dot"></div>
+      <div class="t-body">
+        <div class="t-year">850</div>
+        <div class="t-title">El Bosque de los Árboles Gigantes</div>
+        <p class="t-desc">El Titán Femenino ataca al Cuerpo de Exploración. Annie Leonhart es revelada como la Titán Femenina y queda petrificada dentro de las murallas.</p>
+      </div>
+    </div>
+
+    <div class="t-item reveal">
+      <div class="t-body">
+        <div class="t-year">854</div>
+        <div class="t-title">Más Allá del Mar</div>
+        <p class="t-desc">Cuatro años después, el Cuerpo de Exploración alcanza el océano. Eren ve el mar por primera vez. Y ya planea la destrucción del mundo que yace al otro lado.</p>
+      </div>
+      <div class="t-dot"></div>
+      <div style="flex:1"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ THREE WALLS ═══ -->
+<section class="walls-sec">
+  <div class="reveal">
+    <span class="section-pill">Arquitectura del Mundo</span>
+    <h2 class="section-h">Las <em>Tres</em> Murallas</h2>
+    <p style="max-width:520px;margin:1rem auto 0;font-size:.9rem;line-height:1.8;color:var(--fog);font-style:italic">
+      Tres murallas concéntricas construidas por el Rey Fritz con el poder del Titán Colosal.<br>Dentro vive lo que queda de la humanidad — o eso creían.
+    </p>
+  </div>
+  <div class="walls-grid reveal">
+    <div class="wall-card">
+      <div class="wall-block">
+        <span class="wall-name">Maria</span>
+      </div>
+      <span class="wall-label">Muralla exterior · Caída en 845</span>
+    </div>
+    <div class="wall-card">
+      <div class="wall-block">
+        <span class="wall-name">Rose</span>
+      </div>
+      <span class="wall-label">Muralla media · Zona residencial</span>
+    </div>
+    <div class="wall-card">
+      <div class="wall-block">
+        <span class="wall-name">Sina</span>
+      </div>
+      <span class="wall-label">Muralla interior · La realeza</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SEASONS ═══ -->
+<section class="seasons-sec" id="seasons">
+  <div style="text-align:center" class="reveal">
+    <span class="section-pill">La Saga Completa</span>
+    <h2 class="section-h">Cuatro temporadas.<br>Un destino <em>inevitable</em>.</h2>
+  </div>
+  <div class="seasons-grid">
+    <div class="s-card reveal">
+      <div class="s-card-glow"></div>
+      <div class="s-num">01</div>
+      <div class="s-badge">Temporada I</div>
+      <div class="s-title">La Caída y el Juramento</div>
+      <p class="s-text">El Titán Colosal destruye la Muralla Maria. Eren Yeager pierde a su madre, descubre su capacidad de transformarse en titán y se une al Cuerpo de Exploración para acabar con ellos.</p>
+      <p class="s-ep">25 Episodios · 2013</p>
+    </div>
+    <div class="s-card reveal">
+      <div class="s-card-glow"></div>
+      <div class="s-num">02</div>
+      <div class="s-badge">Temporada II</div>
+      <div class="s-title">Los Monstruos entre Murallas</div>
+      <p class="s-text">La Muralla Rose es atacada. Se revelan los titanes Bestia y Acorazado. Reiner y Bertholdt confiesan ser los traidores. El mundo ya no es lo que era.</p>
+      <p class="s-ep">12 Episodios · 2017</p>
+    </div>
+    <div class="s-card reveal">
+      <div class="s-card-glow"></div>
+      <div class="s-num">03</div>
+      <div class="s-badge">Temporada III</div>
+      <div class="s-title">Revolución y Revelación</div>
+      <p class="s-text">La Historia Reiss. La historia verdadera del mundo. El Cuerpo de Exploración recupera la Muralla Maria. Y una revelación en el sótano cambia todo para siempre.</p>
+      <p class="s-ep">22 Episodios · 2018–2019</p>
+    </div>
+    <div class="s-card reveal">
+      <div class="s-card-glow"></div>
+      <div class="s-num">04</div>
+      <div class="s-badge">Temporada IV · Final</div>
+      <div class="s-title">La Última Temporada</div>
+      <p class="s-text">Marley. Los guerreros y los eldianios. Eren inicia el Rumble — la destrucción del mundo exterior. El camino hacia la libertad exige el precio más alto posible.</p>
+      <p class="s-ep">29 Episodios · 2020–2023</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MANIFESTO ═══ -->
+<section class="manifesto-sec">
+  <div class="manifesto-bg"></div>
+  <div class="manifesto-vlines"></div>
+  <div class="manifesto-inner reveal">
+    <span class="section-pill">La Filosofía</span>
+    <blockquote class="manifesto-big">
+      "Si quieres ganar,<br>no te rindas.<br>
+      Lucha y <em>avanza</em>."
+    </blockquote>
+    <p class="manifesto-attr">— Eren Yeager, Temporada I</p>
+  </div>
+</section>
+
+<!-- ═══ CHARACTERS ═══ -->
+<section class="chars-sec" id="chars">
+  <div style="text-align:center" class="reveal">
+    <span class="section-pill">Los Guerreros</span>
+    <h2 class="section-h">Personajes que <em>marcaron</em><br>generaciones</h2>
+  </div>
+  <div class="chars-grid">
+    <div class="ch-card reveal">
+      <div class="ch-icon">⚔️</div>
+      <div class="ch-name">Eren Yeager</div>
+      <div class="ch-rank">Nº 5 de su promoción · Paradis</div>
+      <div class="ch-power">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+      </div>
+      <p class="ch-desc">Portador del Titán de Ataque y del Titán Fundador. Su búsqueda de libertad lo llevó al límite de lo humano y más allá, iniciando el Rumble.</p>
+      <span class="ch-tag">Titán de Ataque</span>
+    </div>
+    <div class="ch-card reveal">
+      <div class="ch-icon">🌸</div>
+      <div class="ch-name">Mikasa Ackerman</div>
+      <div class="ch-rank">Nº 1 de su promoción · Paradis</div>
+      <div class="ch-power">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+      </div>
+      <p class="ch-desc">La soldado más letal de su generación. Miembro del clan Ackerman, sus capacidades físicas superan a cualquier humano. Su lealtad a Eren es su mayor virtud y su condena.</p>
+      <span class="ch-tag">Cuerpo de Exploración</span>
+    </div>
+    <div class="ch-card reveal">
+      <div class="ch-icon">📖</div>
+      <div class="ch-name">Armin Arlert</div>
+      <div class="ch-rank">Nº 3 de su promoción · Paradis</div>
+      <div class="ch-power">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star" style="color:rgba(139,0,0,.25)">★</span>
+      </div>
+      <p class="ch-desc">La mente táctica que cambió el curso de la humanidad. Heredero del Titán Colosal tras Bertholdt, su inteligencia es su mayor arma en un mundo de gigantes.</p>
+      <span class="ch-tag">Titán Colosal</span>
+    </div>
+    <div class="ch-card reveal">
+      <div class="ch-icon">⚡</div>
+      <div class="ch-name">Levi Ackerman</div>
+      <div class="ch-rank">Capitán · Cuerpo de Exploración</div>
+      <div class="ch-power">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+      </div>
+      <p class="ch-desc">El soldado más fuerte de la humanidad. Clan Ackerman. Su técnica de espadas gemelas es insuperable. Frío, directo, brutalmente eficiente — y más humano de lo que aparenta.</p>
+      <span class="ch-tag">Capitán · Humanidad</span>
+    </div>
+    <div class="ch-card reveal">
+      <div class="ch-icon">🛡️</div>
+      <div class="ch-name">Reiner Braun</div>
+      <div class="ch-rank">Guerrero de Marley · Nº 2</div>
+      <div class="ch-power">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star" style="color:rgba(139,0,0,.25)">★</span>
+      </div>
+      <p class="ch-desc">El Titán Acorazado. Un hombre atrapado entre dos mundos, dos identidades, dos lealtades. Su tragedia es ser demasiado humano para ser un monstruo perfecto.</p>
+      <span class="ch-tag">Titán Acorazado</span>
+    </div>
+    <div class="ch-card reveal">
+      <div class="ch-icon">🏹</div>
+      <div class="ch-name">Historia Reiss</div>
+      <div class="ch-rank">Reina de las Murallas</div>
+      <div class="ch-power">
+        <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star" style="color:rgba(139,0,0,.25)">★</span><span class="star" style="color:rgba(139,0,0,.25)">★</span>
+      </div>
+      <p class="ch-desc">Conocida como Christa Lenz, luego revelada como la verdadera heredera del poder del Titán Fundador. Su decisión de no usarlo definió el destino de todos.</p>
+      <span class="ch-tag">Reina · Paradis</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ NINE TITANS ═══ -->
+<section class="titans-sec" id="titans">
+  <div style="text-align:center" class="reveal">
+    <span class="section-pill">Los Nueve Titanes</span>
+    <h2 class="section-h">Los poderes que <em>dividen</em><br>al mundo</h2>
+  </div>
+  <div class="titans-wrap">
+    <div class="titan-list" id="titanList"></div>
+    <div class="titan-detail" id="titanDetail">
+      <div class="td-icon" id="tdIcon">🔥</div>
+      <div class="td-name" id="tdName">Selecciona un titán</div>
+      <div class="td-holder" id="tdHolder">— Portador desconocido —</div>
+      <p class="td-desc" id="tdDesc">Elige uno de los Nueve Titanes para conocer su poder, historia y portador.</p>
+      <div class="td-bars" id="tdBars"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ODM GEAR ═══ -->
+<section class="odm-sec">
+  <div class="odm-inner">
+    <div class="odm-visual reveal-left">
+      <div class="odm-ring">
+        <div class="odm-center">
+          <span class="odm-center-icon">⚙️</span>
+          <span class="odm-center-text">Equipo ODM</span>
+        </div>
+        <!-- Gear teeth -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="140" cy="140" r="135" fill="none" stroke="rgba(201,168,76,.15)" stroke-width="1" stroke-dasharray="4 8"/>
+          <circle cx="140" cy="140" r="110" fill="none" stroke="rgba(139,0,0,.12)" stroke-width="1" stroke-dasharray="6 10"/>
+        </svg>
+      </div>
+    </div>
+    <div class="odm-text-block reveal-right">
+      <span class="section-pill">Tecnología</span>
+      <h3>Equipo de<br>Maniobras Tridimensionales</h3>
+      <p>El ODM (o Equipo 3DM) es el arma definitiva de la humanidad contra los titanes. Permite moverse en tres dimensiones usando cables de acero disparados con presión de gas.</p>
+      <p>Solo los soldados más hábiles logran dominarlo. Levi Ackerman lleva el ODM a su límite absoluto — velocidades y ángulos imposibles para cualquier otro humano.</p>
+      <div class="odm-specs">
+        <div class="odm-spec"><div class="odm-spec-name">Velocidad</div><div class="odm-spec-val">~100 km/h</div></div>
+        <div class="odm-spec"><div class="odm-spec-name">Hoja</div><div class="odm-spec-val">Acero ultraligero</div></div>
+        <div class="odm-spec"><div class="odm-spec-name">Propulsión</div><div class="odm-spec-val">Gas comprimido</div></div>
+        <div class="odm-spec"><div class="odm-spec-name">Objetivo</div><div class="odm-spec-val">Nuca del titán</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SURVEY CORPS ═══ -->
+<section class="survey-sec">
+  <div class="survey-bg"></div>
+  <div class="survey-inner">
+    <div class="survey-emblem reveal-left">
+      <!-- Wings of Freedom SVG -->
+      <svg class="wings-svg" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Left wing -->
+        <path d="M 150 100 Q 120 70 80 50 Q 50 35 20 40 Q 40 55 55 75 Q 30 65 10 72 Q 30 82 50 88 Q 28 85 12 98 Q 35 100 58 96 Q 38 100 28 115 Q 55 110 78 100 Q 60 112 58 130 Q 80 118 98 104 Q 85 120 88 140 Q 108 122 118 105 Q 110 125 116 145 Q 132 122 136 102 Z"
+              fill="rgba(46,204,113,.7)" stroke="rgba(46,204,113,.3)" stroke-width="1"/>
+        <!-- Right wing -->
+        <path d="M 150 100 Q 180 70 220 50 Q 250 35 280 40 Q 260 55 245 75 Q 270 65 290 72 Q 270 82 250 88 Q 272 85 288 98 Q 265 100 242 96 Q 262 100 272 115 Q 245 110 222 100 Q 240 112 242 130 Q 220 118 202 104 Q 215 120 212 140 Q 192 122 182 105 Q 190 125 184 145 Q 168 122 164 102 Z"
+              fill="rgba(46,204,113,.7)" stroke="rgba(46,204,113,.3)" stroke-width="1"/>
+        <!-- Center body -->
+        <ellipse cx="150" cy="100" rx="14" ry="20" fill="rgba(46,204,113,.9)"/>
+        <path d="M 143 95 L 157 95 L 157 115 Q 150 122 143 115 Z" fill="rgba(30,107,60,.9)"/>
+      </svg>
+      <p class="survey-motto">Las Alas de la Libertad</p>
+    </div>
+    <div class="survey-text reveal-right">
+      <span class="section-pill">Cuerpo de Exploración</span>
+      <h3>Los que vuelan<br>más allá de las murallas</h3>
+      <p>El Cuerpo de Exploración es la élite de las fuerzas militares de Paradis. Su misión: salir de las murallas, mapear el exterior y encontrar una forma de derrotar a los titanes.</p>
+      <p>Su tasa de mortalidad es devastadora. Cada expedición cobra vidas. Y sin embargo, sus soldados visten las Alas de la Libertad con orgullo absoluto.</p>
+      <p style="color:rgba(46,204,113,.6);font-style:italic;font-size:.85rem">"Ofrecemos nuestros corazones."</p>
+      <span class="corps-badge">Comandantes: Erwin Smith · Hange Zoë · Armin Arlert</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ QUOTES CAROUSEL ═══ -->
+<section class="quotes-sec">
+  <div style="text-align:center" class="reveal">
+    <span class="section-pill">Frases Legendarias</span>
+    <h2 class="section-h">Palabras que <em>resuenan</em></h2>
+  </div>
+  <div class="quotes-track" id="quotesTrack"></div>
+  <div class="q-dots" id="qDots"></div>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<section class="stats-sec">
+  <div style="text-align:center" class="reveal">
+    <span class="section-pill">Números</span>
+    <h2 class="section-h">Una obra <em>histórica</em></h2>
+  </div>
+  <div class="stats-grid">
+    <div class="reveal">
+      <span class="stat-num" data-target="139" data-suffix="">0</span>
+      <span class="stat-lab">Capítulos del manga</span>
+      <div class="stat-bar"></div>
+    </div>
+    <div class="reveal">
+      <span class="stat-num" data-target="94" data-suffix="">0</span>
+      <span class="stat-lab">Episodios de anime</span>
+      <div class="stat-bar"></div>
+    </div>
+    <div class="reveal">
+      <span class="stat-num" data-target="4" data-suffix="">0</span>
+      <span class="stat-lab">Temporadas épicas</span>
+      <div class="stat-bar"></div>
+    </div>
+    <div class="reveal">
+      <span class="stat-num" data-target="110" data-suffix="M+">0</span>
+      <span class="stat-lab">Copias del manga vendidas</span>
+      <div class="stat-bar"></div>
+    </div>
+    <div class="reveal">
+      <span class="stat-num" data-target="9" data-suffix="">0</span>
+      <span class="stat-lab">Titanes del poder</span>
+      <div class="stat-bar"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SOUNDTRACK ═══ -->
+<section class="sound-sec" id="sound">
+  <div style="text-align:center" class="reveal">
+    <span class="section-pill">Soundtrack</span>
+    <h2 class="section-h">La música que <em>estremece</em></h2>
+  </div>
+  <div class="tracks reveal" id="trackList"></div>
+</section>
+
+<!-- ═══ GALLERY ═══ -->
+<section class="gallery-sec">
+  <div style="text-align:center" class="reveal">
+    <span class="section-pill">Momentos</span>
+    <h2 class="section-h">Escenas que no <em>olvidarás</em></h2>
+  </div>
+  <div class="gallery-grid reveal">
+    <div class="g-cell">
+      <div class="g-inner"><span class="g-emoji">🏔️</span><span class="g-label">La Caída de Maria</span></div>
+    </div>
+    <div class="g-cell">
+      <div class="g-inner"><span class="g-emoji">⚔️</span><span class="g-label">La Primera Transformación</span></div>
+    </div>
+    <div class="g-cell">
+      <div class="g-inner"><span class="g-emoji">🌊</span><span class="g-label">El Océano</span></div>
+    </div>
+    <div class="g-cell">
+      <div class="g-inner"><span class="g-emoji">💥</span><span class="g-label">El Rumble Comienza</span></div>
+    </div>
+    <div class="g-cell">
+      <div class="g-inner"><span class="g-emoji">🦅</span><span class="g-label">Alas de Libertad</span></div>
+    </div>
+    <div class="g-cell">
+      <div class="g-inner"><span class="g-emoji">🌙</span><span class="g-label">El Sótano · La Verdad</span></div>
+    </div>
+    <div class="g-cell">
+      <div class="g-inner"><span class="g-emoji">🔥</span><span class="g-label">Shinzou wo Sasageyo</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo reveal">進撃の巨人 · Attack on Titan</div>
+    <nav class="footer-nav reveal">
+      <a href="#">Manga</a>
+      <a href="#">Anime</a>
+      <a href="#">Personajes</a>
+      <a href="#">Soundtrack</a>
+      <a href="#">Galería</a>
+      <a href="#">Historia</a>
+    </nav>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2009–2021 Hajime Isayama · Kodansha · Wit Studio · MAPPA · Fan landing page sin fines comerciales.</p>
+  </div>
+</footer>
+
+<script>
+/* ── CURSOR ── */
+const cur = document.getElementById('cursor');
+const curR = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function loop(){
+  rx+=(mx-rx)*.18;ry+=(my-ry)*.18;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+  curR.style.left=rx+'px';curR.style.top=ry+'px';
+  requestAnimationFrame(loop);
+})();
+
+/* ── HERO LINES ── */
+(function(){
+  const c=document.getElementById('heroLines');
+  for(let i=0;i<8;i++){
+    const l=document.createElement('div');
+    l.className='h-line';
+    l.style.cssText=`top:${Math.random()*100}%;animation-duration:${12+Math.random()*18}s;animation-delay:${Math.random()*-20}s;opacity:${.3+Math.random()*.5}`;
+    c.appendChild(l);
+  }
+})();
+
+/* ── EMBERS ── */
+(function(){
+  const c=document.getElementById('embers');
+  for(let i=0;i<45;i++){
+    const e=document.createElement('div');
+    e.className='ember';
+    const s=Math.random()*5+2;
+    const colors=['rgba(192,57,43,.9)','rgba(139,0,0,.8)','rgba(231,76,60,.7)','rgba(201,168,76,.5)'];
+    const col=colors[Math.floor(Math.random()*colors.length)];
+    e.style.cssText=`
+      width:${s}px;height:${s}px;left:${Math.random()*100}%;bottom:${Math.random()*30}%;
+      --dx:${(Math.random()-.5)*300}px;
+      background:${col};
+      box-shadow:0 0 ${s*2}px ${col};
+      animation-duration:${7+Math.random()*10}s;
+      animation-delay:${Math.random()*-12}s;
+    `;
+    c.appendChild(e);
+  }
+})();
+
+/* ── LORE TICKER ── */
+(function(){
+  const items=['Shinzou wo Sasageyo','進撃の巨人','Libertad','Paradis','Marley','Cuerpo de Exploración','Los Nueve Titanes','El Rumble','Muralla Maria','Muralla Rose','Muralla Sina','Eren Yeager','Mikasa Ackerman','Armin Arlert','Levi Ackerman','Historia Reiss','Reiner Braun','Bertholdt Hoover','Annie Leonhart'];
+  const t=document.getElementById('ticker');
+  const make=()=>items.map(x=>`<span>${x}</span><span class="sep">✦</span>`).join('');
+  t.innerHTML=make()+make();
+})();
+
+/* ── ODM CARD MOUSE GLOW ── */
+document.querySelectorAll('.s-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=((e.clientX-r.left)/r.width)*100;
+    const y=((e.clientY-r.top)/r.height)*100;
+    card.querySelector('.s-card-glow').style.setProperty('--mx',x+'%');
+    card.querySelector('.s-card-glow').style.setProperty('--my',y+'%');
+  });
+});
+
+/* ── NINE TITANS DATA ── */
+const titans=[
+  {icon:'🔥',name:'Titán de Ataque',holder:'Eren Yeager (Grisha Yeager)',desc:'El titán que avanza hacia la libertad sin detenerse jamás. Nunca recuerda el futuro — solo siente la voluntad de sus portadores futuros impulsándolo.',str:95,spd:78,arm:60,intel:72},
+  {icon:'⚡',name:'Titán Colosal',holder:'Armin Arlert (Bertholdt Hoover)',desc:'El titán más grande conocido. Al transformarse libera una explosión de vapor capaz de destruir la estructura de una muralla completa.',str:100,spd:20,arm:85,intel:65},
+  {icon:'🛡️',name:'Titán Acorazado',holder:'Reiner Braun',desc:'Su piel se endurece como armadura de acero. Puede resistir los cañones más potentes de la humanidad. Su velocidad es inferior, pero su resistencia es absoluta.',str:88,spd:55,arm:100,intel:75},
+  {icon:'🦁',name:'Titán Bestia',holder:'Zeke Yeager',desc:'Un titán inusualmente inteligente con la capacidad de crear y controlar titanes puros. Zeke posee la sangre real de los Fritz, multiplicando su poder.',str:85,spd:70,arm:72,intel:92},
+  {icon:'🕷️',name:'Titán Femenino',holder:'Annie Leonhart',desc:'Combina velocidades extremas con la capacidad de endurecer partes de su cuerpo. Puede atraer titanes puros con sus gritos. Agilidad sin igual.',str:80,spd:92,arm:75,intel:88},
+  {icon:'🔨',name:'Titán Martillo',holder:'Lara Tybur (Eren Yeager)',desc:'Crea estructuras de titan-material endurecidas con una dureza sobrehumana. Puede construir armas, plataformas y proyectiles en combate.',str:90,spd:50,arm:88,intel:80},
+  {icon:'🦌',name:'Titán Mandíbulas',holder:'Porco Galliard (Falco Grice)',desc:'El más veloz de los Nueve Titanes. Sus mandíbulas pueden cortar el titan-material endurecido — el único que puede. Su tamaño es mucho menor que los demás.',str:70,spd:100,arm:50,intel:70},
+  {icon:'🐟',name:'Titán Carguero',holder:'Pieck Finger',desc:'Cuadrúpedo único entre los Nueve. No combate directamente sino que transporta suministros, tropas y equipamiento. Su resistencia es formidable.',str:72,spd:65,arm:78,intel:85},
+  {icon:'🌍',name:'Titán Fundador',holder:'Eren Yeager (Ymir Fritz)',desc:'El poder más absoluto. Quien lo posee con sangre real puede controlar todos los titanes, alterar los recuerdos de los eldianios y hablar con todos sus portadores pasados.',str:100,spd:60,arm:90,intel:100},
+];
+const tl=document.getElementById('titanList');
+const td=document.getElementById('titanDetail');
+function showTitan(i){
+  const t=titans[i];
+  document.querySelectorAll('.titan-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  document.getElementById('tdIcon').textContent=t.icon;
+  document.getElementById('tdName').textContent=t.name;
+  document.getElementById('tdHolder').textContent='Portador: '+t.holder;
+  document.getElementById('tdDesc').textContent=t.desc;
+  const bars=document.getElementById('tdBars');
+  bars.innerHTML='';
+  [['Fuerza',t.str],['Velocidad',t.spd],['Armadura',t.arm],['Inteligencia',t.intel]].forEach(([l,v])=>{
+    bars.innerHTML+=`<div>
+      <div class="td-bar-label"><span>${l}</span><span>${v}/100</span></div>
+      <div class="td-bar-track"><div class="td-bar-fill" data-w="${v}"></div></div>
+    </div>`;
+  });
+  setTimeout(()=>{
+    bars.querySelectorAll('.td-bar-fill').forEach(b=>{b.style.width=b.dataset.w+'%'});
+  },50);
+}
+titans.forEach((t,i)=>{
+  const b=document.createElement('button');
+  b.className='titan-btn';
+  b.innerHTML=`<span class="tb-icon">${t.icon}</span><div class="tb-info"><div class="tb-name">${t.name}</div><div class="tb-holder">${t.holder.split('(')[0].trim()}</div></div>`;
+  b.onclick=()=>showTitan(i);
+  tl.appendChild(b);
+});
+showTitan(0);
+
+/* ── QUOTES CAROUSEL ── */
+const quotes=[
+  {text:'"Si mueres, es que no eras lo suficientemente fuerte. Así de simple."',attr:'— Levi Ackerman'},
+  {text:'"Nunca desistas. El momento en que lo hagas, la batalla estará perdida."',attr:'— Erwin Smith'},
+  {text:'"Más allá de estas murallas... hay tierra, hay agua, hay vida."',attr:'— Armin Arlert'},
+  {text:'"Yo vine a este mundo... y eso es suficiente."',attr:'— Ymir'},
+  {text:'"Haz lo que sea necesario. Salva lo que puedas salvar."',attr:'— Hange Zoë'},
+  {text:'"La única forma de ganar es luchar."',attr:'— Eren Yeager'},
+];
+const qTrack=document.getElementById('quotesTrack');
+const qDots=document.getElementById('qDots');
+let qActive=0;
+quotes.forEach((q,i)=>{
+  const slide=document.createElement('div');
+  slide.className='quote-slide'+(i===0?' active':'');
+  slide.innerHTML=`<p class="q-text">${q.text}</p><p class="q-attr">${q.attr}</p>`;
+  qTrack.appendChild(slide);
+  const dot=document.createElement('div');
+  dot.className='q-dot'+(i===0?' active':'');
+  dot.onclick=()=>goQ(i);
+  qDots.appendChild(dot);
+});
+function goQ(i){
+  document.querySelectorAll('.quote-slide')[qActive].classList.remove('active');
+  document.querySelectorAll('.q-dot')[qActive].classList.remove('active');
+  qActive=i;
+  document.querySelectorAll('.quote-slide')[qActive].classList.add('active');
+  document.querySelectorAll('.q-dot')[qActive].classList.add('active');
+}
+setInterval(()=>goQ((qActive+1)%quotes.length),4500);
+
+/* ── SOUNDTRACK ── */
+const tracks=[
+  {num:'01',title:'Guren no Yumiya',comp:'Linked Horizon',dur:'4:23'},
+  {num:'02',title:'Jiyuu no Tsubasa',comp:'Linked Horizon',dur:'5:01'},
+  {num:'03',title:'Shinzou wo Sasageyo',comp:'Linked Horizon',dur:'4:18'},
+  {num:'04',title:'Shoukei to Shikabane no Michi',comp:'Linked Horizon',dur:'4:45'},
+  {num:'05',title:'YouSeeBIGGIRL/T:T',comp:'Hiroyuki Sawano',dur:'3:56'},
+  {num:'06',title:'The Rumbling',comp:'SiM',dur:'3:38'},
+  {num:'07',title:'Name of Love',comp:'Cinema Staff',dur:'4:02'},
+];
+const tList=document.getElementById('trackList');
+let nowPlaying=-1;
+tracks.forEach((t,i)=>{
+  const div=document.createElement('div');
+  div.className='track';
+  div.innerHTML=`
+    <span class="track-num">${t.num}</span>
+    <span class="track-play">▶</span>
+    <div class="track-info"><div class="track-title">${t.title}</div><div class="track-comp">${t.comp}</div></div>
+    <div class="track-wave">
+      <div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div><div class="wave-bar"></div>
+    </div>
+    <span class="track-dur">${t.dur}</span>
+  `;
+  div.onclick=()=>{
+    document.querySelectorAll('.track').forEach(tr=>tr.classList.remove('playing'));
+    if(nowPlaying===i){nowPlaying=-1}
+    else{div.classList.add('playing');nowPlaying=i}
+  };
+  tList.appendChild(div);
+});
+
+/* ── STATS COUNTER ── */
+const statsObs=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.querySelectorAll('.stat-num').forEach(el=>{
+        const target=+el.dataset.target;
+        const suffix=el.dataset.suffix||'';
+        let v=0,steps=60;
+        const inc=target/steps;
+        const t=setInterval(()=>{v+=inc;if(v>=target){v=target;clearInterval(t)}el.textContent=Math.floor(v)+suffix},25);
+      });
+      statsObs.unobserve(entry.target);
+    }
+  });
+},{threshold:.3});
+document.querySelectorAll('.stats-sec').forEach(s=>statsObs.observe(s));
+
+/* ── SCROLL REVEAL ── */
+const revObs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      setTimeout(()=>e.target.classList.add('in'),i*90);
+      revObs.unobserve(e.target);
+    }
+  });
+},{threshold:.1});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>revObs.observe(el));
+
+/* ── PARALLAX HERO TITAN ── */
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY;
+  const tw=document.querySelector('.titan-wrap');
+  if(tw) tw.style.transform=`translateX(-50%) translateY(${y*.2}px)`;
+  const wb=document.querySelector('.hero-bg');
+  if(wb) wb.style.transform=`translateY(${y*.1}px)`;
+},{passive:true});
+
+/* ── ODM RING MOUSE TILT ── */
+document.addEventListener('mousemove',e=>{
+  const r=document.querySelector('.odm-ring');
+  if(!r) return;
+  const rect=r.getBoundingClientRect();
+  const cx=rect.left+rect.width/2;
+  const cy=rect.top+rect.height/2;
+  const dx=(e.clientX-cx)/window.innerWidth;
+  const dy=(e.clientY-cy)/window.innerHeight;
+  r.style.transform=`rotateX(${dy*15}deg) rotateY(${dx*15}deg)`;
+});
+</script>
+</body>
+</html>
